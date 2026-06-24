@@ -77,6 +77,7 @@ function drawCard() {
     kingsDrawn++;
     updateKingsUI();
     if (kingsDrawn === 4) {
+            document.getElementById('lastKingPlayer').textContent = players[currentPlayerIdx].name;
       setTimeout(() => showScreen('endScreen'), 2000);
     }
   }
