@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Circle of Death by Piso</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- SCHERMATA INIZIALE -->
+<section id="heroScreen" class="screen active">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="skull-icon">&#9760;</div>
+    <h1 class="game-title">Circle<br>of Death</h1>
+    <p class="game-subtitle">Il Cerchio della Morte</p>
+    <p class="creator-label">un gioco di <span class="creator-name">Piso</span></p>
+    <div class="hero-meta">
+      <span class="meta-item"><span class="meta-icon">&#127183;</span> Giocatori illimitati</span>
+      <span class="meta-item"><span class="meta-icon">&#127867;</span> Alcol a volonta</span>
+      <span class="meta-item"><span class="meta-icon">&#127183;</span> Difficile</span>
+    </div>
+    <button class="btn btn-primary btn-glow" onclick="goToSetup()">Inizia a giocare</button>
+    <button class="btn btn-ghost" onclick="goToRules()">Regole del gioco</button>
+  </div>
+</section>
+
+<!-- REGOLE -->
+<section id="rulesScreen" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="showScreen('heroScreen')">&#8592; Torna</button>
+    <h2>Regole del Gioco</h2>
+  </div>
+  <div class="rules-list">
+    <div class="rule-item"><span class="rule-card red">2</span><div><strong>Categoria</strong><p>Scegli una categoria, tutti devono trovare parole a tema. Chi non riesce beve!</p></div></div>
+    <div class="rule-item"><span class="rule-card red">3</span><div><strong>Rima</strong><p>Scegli una parola, tutti devono trovare una rima. Chi non trova beve!</p></div></div>
+    <div class="rule-item"><span class="rule-card black">4</span><div><strong>Question Master</strong><p>Se ti risponde a una domanda che fai... beve! Ruolo mantenuto fino al prossimo 4.</p></div></div>
+    <div class="rule-item"><span class="rule-card black">5</span><div><strong>Contatore</strong><p>Scegli un numero 3-9, al suo posto si dice una parola. Chi sbaglia beve!</p></div></div>
+    <div class="rule-item"><span class="rule-card red">6</span><div><strong>Carta del Cesso</strong><p>Solo chi pesca questo 6 puo andare in bagno!</p></div></div>
+    <div class="rule-item"><span class="rule-card red">7</span><div><strong>Bevi solo tu</strong><p>Semplice. Bevi tu e solo tu.</p></div></div>
+    <div class="rule-item"><span class="rule-card black">8</span><div><strong>Thumb Master</strong><p>Metti il pollice sul tavolo quando vuoi. L'ultimo a farlo beve!</p></div></div>
+    <div class="rule-item"><span class="rule-card black">9</span><div><strong>Inventa una regola</strong><p>Crea una regola che vale per il resto della partita!</p></div></div>
+    <div class="rule-item"><span class="rule-card red">10</span><div><strong>Distribuisci 10 sorsi</strong><p>Distribuisci 10 sorsi tra i giocatori come vuoi.</p></div></div>
+    <div class="rule-item"><span class="rule-card black">J</span><div><strong>Gli uomini bevono</strong><p>Tutti i ragazzi devono bere.</p></div></div>
+    <div class="rule-item"><span class="rule-card red">Q</span><div><strong>Le donne bevono</strong><p>Tutte le ragazze devono bere.</p></div></div>
+    <div class="rule-item"><span class="rule-card gold">K</span><div><strong>Coppa del Re</strong><p>Riempi il calice al centro! Il quarto re deve berlo tutto. SALUTE!</p></div></div>
+    <div class="rule-item"><span class="rule-card red">A</span><div><strong>Cascata</strong><p>Tutti bevono insieme. Puoi smettere solo quando il primo si ferma.</p></div></div>
+  </div>
+</section>
+
+<!-- SETUP GIOCATORI -->
+<section id="setupScreen" class="screen">
+  <div class="screen-header">
+    <button class="btn-back" onclick="showScreen('heroScreen')">&#8592; Torna</button>
+    <h2>Giocatori</h2>
+  </div>
+  <div class="setup-body">
+    <div class="player-count-row">
+      <label>Numero giocatori</label>
+      <div class="counter-control">
+        <button class="counter-btn" onclick="changeCount(-1)">&#8722;</button>
+        <span id="countDisplay">4</span>
+        <button class="counter-btn" onclick="changeCount(1)">&#43;</button>
+      </div>
+    </div>
+    <div id="playersInputs"></div>
+    <button class="btn btn-primary btn-glow" style="width:100%;margin-top:16px;" onclick="startGame()">Inizia il gioco &#8594;</button>
+  </div>
+</section>
+
+<!-- GIOCO -->
+<section id="gameScreen" class="screen">
+  <div class="game-topbar">
+    <button class="btn-back" onclick="confirmRestart()">&#8592;</button>
+    <div class="topbar-center">
+      <span class="topbar-title">Circle of Death</span>
+    </div>
+    <div class="kings-counter" id="kingsCounter">
+      <span id="k1" class="king-dot">&#9818;</span>
+      <span id="k2" class="king-dot">&#9818;</span>
+      <span id="k3" class="king-dot">&#9818;</span>
+      <span id="k4" class="king-dot">&#9818;</span>
+    </div>
+  </div>
+
+  <div class="current-player-banner" id="currentPlayerBanner">
+    <span class="turn-label">Turno di</span>
+    <span class="player-name-display" id="currentPlayerName">-</span>
+  </div>
+
+  <div class="deck-zone">
+    <div class="deck-stack">
+      <div class="deck-card deck-shadow3"></div>
+      <div class="deck-card deck-shadow2"></div>
+      <div class="deck-card deck-shadow1"></div>
+      <div class="deck-card deck-top" id="deckTop" onclick="drawCard()">
+        <div class="deck-top-inner">
+          <div class="deck-logo">&#9760;</div>
+          <p class="deck-tap-hint">Tocca per pescare</p>
+          <p class="deck-remaining" id="deckRemaining">52 carte</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carta pescata -->
+  <div id="cardReveal" class="card-reveal hidden">
+    <div class="playing-card" id="playingCardEl">
+      <div class="pc-top-left">
+        <div class="pc-rank" id="pcRankTL"></div>
+        <div class="pc-suit" id="pcSuitTL"></div>
+      </div>
+      <div class="pc-center" id="pcCenter"></div>
+      <div class="pc-bottom-right">
+        <div class="pc-rank" id="pcRankBR"></div>
+        <div class="pc-suit" id="pcSuitBR"></div>
+      </div>
+    </div>
+    <div class="card-rule-box" id="cardRuleBox">
+      <h3 id="ruleTitle"></h3>
+      <p id="ruleDesc"></p>
+      <p id="ruleGender" class="rule-gender"></p>
+    </div>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextPlayer()">Passa al prossimo &#8594;</button>
+  </div>
+
+  <div class="players-order-bar" id="playersOrderBar"></div>
+</section>
+
+<!-- FINE GIOCO -->
+<section id="endScreen" class="screen">
+  <div class="end-content">
+    <div class="end-icon">&#128081;</div>
+    <h2 class="end-title">Coppa del Re!</h2>
+    <p class="end-sub">L'ultimo Re e stato pescato.<br>Il gioco e finito...</p>
+    <p class="end-salute">SALUTE! &#127867;</p>
+    <button class="btn btn-primary btn-glow" onclick="restartAll()">Nuova Partita</button>
+  </div>
+</section>
+
+<script src="cards.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
