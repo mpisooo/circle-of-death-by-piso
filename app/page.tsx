@@ -228,8 +228,8 @@ const CLASSIC_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
       kind: "physical",
     },
     J: {
-      title: "Il jolly",
-      body: "Conserva questa carta: puoi passare a un altro giocatore la prossima penalità che ricevi.",
+      title: "Il legislatore",
+      body: "Inventa una regola semplice per tutti. Entra in vigore subito e dura fino alla fine della partita: chi la infrange beve {sip}. Il gruppo può rifiutarla se mette qualcuno a disagio.",
       kind: "wild",
     },
     Q: {
@@ -499,8 +499,8 @@ const POOL_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
       kind: "drink",
     },
     J: {
-      title: "Capitano del bordo",
-      body: "Fino al prossimo Jack puoi alzare un braccio restando seduto. L'ultimo che ti copia beve {sip}.",
+      title: "Il legislatore da piscina",
+      body: "Inventa una regola semplice per tutti. Entra in vigore subito e dura fino alla fine: chi la infrange beve {sip}. Deve restare sicura, da seduti e fuori dall'acqua.",
       kind: "wild",
     },
     Q: {
