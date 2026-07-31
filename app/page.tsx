@@ -6,6 +6,7 @@ type Screen = "landing" | "rules" | "setup" | "transition" | "game" | "end";
 type SuitKey = "hearts" | "diamonds" | "clubs" | "spades";
 type Rank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "J" | "Q" | "K";
 type DrinkMode = "sips" | "shots";
+type GameMode = "classic" | "pool";
 type ChallengeKind = "drink" | "physical" | "social" | "wild";
 
 type Suit = {
@@ -40,7 +41,7 @@ const SUITS: Suit[] = [
 
 const RANKS: Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
-const CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
+const CLASSIC_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
   hearts: {
     A: {
       title: "Cascata",
@@ -311,6 +312,277 @@ const CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
   },
 };
 
+const POOL_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
+  hearts: {
+    A: {
+      title: "Brindisi al sole",
+      body: "Tutti bevono {sip}, sempre fuori dall'acqua. Poi distribuisci altri {sip2} a chi vuoi.",
+      kind: "drink",
+    },
+    "2": {
+      title: "Bagnino del gruppo",
+      body: "Scegli chi sarebbe il bagnino migliore del gruppo: riceve {sip2} da distribuire agli altri.",
+      kind: "social",
+    },
+    "3": {
+      title: "Foto da vacanza",
+      body: "Scegli due giocatori e mettetevi in posa da foto, restando seduti. Il primo che ride beve {sip}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Quattro sorsi all'ombra",
+      body: "Distribuisci {sip4} tra chi si trova all'ombra. Se nessuno è all'ombra, scegli liberamente.",
+      kind: "drink",
+    },
+    "5": {
+      title: "Cinque sorsi da regalare",
+      body: "Distribuisci {sip5} coinvolgendo almeno due persone.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Compagni di ombrellone",
+      body: "Scegli un compagno. Fino al tuo prossimo turno, ogni penalità che ricevete viene divisa tra voi due.",
+      kind: "wild",
+    },
+    "7": {
+      title: "Sette sorsi freschi",
+      body: "Distribuisci {sip7}, ma non puoi assegnarne più di 2 alla stessa persona.",
+      kind: "drink",
+    },
+    "8": {
+      title: "La posa da piscina",
+      body: "Inventa una posa estiva da seduto. {randomPlayer} deve copiarla: se sbaglia, beve {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Nove sorsi sul bordo",
+      body: "Distribuisci {sip9} tra almeno tre giocatori.",
+      kind: "drink",
+    },
+    "10": {
+      title: "Dieci sorsi da piscina",
+      body: "Hai {sip10} da distribuire tra almeno due persone.",
+      kind: "drink",
+    },
+    J: {
+      title: "Cambio di lettino",
+      body: "Indicate un nuovo posto asciutto dove sedervi e spostatevi camminando. L'ultimo pronto beve {sip2}.",
+      kind: "physical",
+    },
+    Q: {
+      title: "Regina dell'ombrellone",
+      body: "Scegli due accompagnatori: bevono {sip} ciascuno. Poi distribuisci altri {sip3}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re della piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, tenuto lontano dall'acqua. Chi pesca il quarto Re lo divide fuori dalla vasca.",
+      kind: "drink",
+    },
+  },
+  diamonds: {
+    A: {
+      title: "Numero del lettino",
+      body: "Il numero uscito è {number}. Conta i giocatori partendo da te: la persona scelta beve {sip2}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Sole o ombra",
+      body: "Tutti indicano sole oppure ombra. Chi appartiene al gruppo meno numeroso beve {sip}.",
+      kind: "wild",
+    },
+    "3": {
+      title: "Tre sorsi da regalare",
+      body: "Distribuisci {sip3} come preferisci.",
+      kind: "drink",
+    },
+    "4": {
+      title: "Pausa crema solare",
+      body: "Chi deve rimettere la protezione si prende una pausa e lo fa. Nel frattempo distribuisci {sip2} agli altri.",
+      kind: "social",
+    },
+    "5": {
+      title: "Cinque sorsi con limite",
+      body: "Distribuisci {sip5}, con un massimo di 2 per persona.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Sei sorsi in coppia",
+      body: "Scegli due giocatori e dividi {sip6} tra loro.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Sette secondi da copertina",
+      body: "{randomPlayer} deve restare in posa da copertina per 7 secondi, da seduto. Se ride o si muove, beve {sip2}.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Otto sorsi, quattro persone",
+      body: "Distribuisci {sip8} tra quattro persone. Se siete in meno, coinvolgi tutti gli altri giocatori.",
+      kind: "drink",
+    },
+    "9": {
+      title: "DJ della piscina",
+      body: "Scegli la prossima canzone e distribuisci {sip3}.",
+      kind: "social",
+    },
+    "10": {
+      title: "Dieci sorsi a coppie",
+      body: "Formate delle coppie. Distribuisci {sip10} tra le coppie come preferisci.",
+      kind: "drink",
+    },
+    J: {
+      title: "Jolly d'acqua",
+      body: "Conserva questa carta: puoi sostituire interamente la tua prossima penalità con un bicchiere d'acqua.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Regina dei lettini",
+      body: "Scegli la persona più rilassata del gruppo: sarà lei a distribuire {sip4}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re di quadri in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, sempre lontano dalla vasca. Al quarto Re dividetelo fuori dall'acqua.",
+      kind: "drink",
+    },
+  },
+  clubs: {
+    A: {
+      title: "Onda da seduti",
+      body: "Create un'onda alzando le braccia uno alla volta, senza alzarvi. Chi parte fuori tempo beve {sip}.",
+      kind: "physical",
+    },
+    "2": {
+      title: "Tocca il telo",
+      body: "Tutti devono toccare il proprio asciugamano restando al posto. L'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    "3": {
+      title: "Tre pose da vacanza",
+      body: "Mostra tre pose da seduto. {randomPlayer} deve ripeterle nello stesso ordine oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Quattro direzioni",
+      body: "Al tre, indicate piscina, ombra, bar oppure uscita. Chi sceglie la direzione meno votata beve {sip2}.",
+      kind: "wild",
+    },
+    "5": {
+      title: "Cinque sorsi in palio",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi vince distribuisce {sip5}.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Sei battiti sul lettino",
+      body: "Batti un ritmo di sei colpi. {randomPlayer} deve ripeterlo oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "7": {
+      title: "Mimo acquatico",
+      body: "Da seduto, mima uno stile di nuoto. Se qualcuno indovina distribuisci {sip2}; altrimenti li bevi tu.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Asciugamano in testa",
+      body: "Tieni un asciugamano in equilibrio sulla testa per 8 secondi, restando seduto. Se cade, bevi {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Ritmo dell'estate",
+      body: "Crea un ritmo di tre battiti e ripetilo tre volte. {randomPlayer} deve copiarlo oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "10": {
+      title: "Sorsi e acqua",
+      body: "Distribuisci {sip8}. Subito dopo, tutti fanno anche un giro d'acqua.",
+      kind: "drink",
+    },
+    J: {
+      title: "Capitano del bordo",
+      body: "Fino al prossimo Jack puoi alzare un braccio restando seduto. L'ultimo che ti copia beve {sip}.",
+      kind: "wild",
+    },
+    Q: {
+      title: "La regina comanda",
+      body: "Scegli una posa sicura da seduto. Tutti devono copiarla: l'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    K: {
+      title: "Re di fiori in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, lontano dall'acqua. Al quarto Re fate il brindisi in zona asciutta.",
+      kind: "drink",
+    },
+  },
+  spades: {
+    A: {
+      title: "Piscina è vietato",
+      body: "Fino al tuo prossimo turno, chi pronuncia la parola «piscina» beve {sip}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Sguardo da bagnino",
+      body: "Tu e {randomPlayer} vi guardate per 10 secondi. Il primo che ride o distoglie lo sguardo beve {sip2}.",
+      kind: "social",
+    },
+    "3": {
+      title: "Tre sorsi da distribuire",
+      body: "Distribuisci {sip3} tra gli altri giocatori.",
+      kind: "drink",
+    },
+    "4": {
+      title: "Statua da lettino",
+      body: "Prima del tuo prossimo turno puoi gridare «Statua!». Tutti si fermano restando seduti: l'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    "5": {
+      title: "Verità da vacanza",
+      body: "Rispondi a una domanda leggera sulle vacanze oppure bevi {sip2}. Le domande personali si possono sempre rifiutare.",
+      kind: "social",
+    },
+    "6": {
+      title: "Sei sorsi all'ombra",
+      body: "Distribuisci {sip6}. Se siete al sole, prima spostatevi con calma in una zona d'ombra.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Non ridere al sole",
+      body: "Hai 7 secondi per far ridere {randomPlayer}, senza toccarlo e restando seduto. Chi perde beve {sip2}.",
+      kind: "social",
+    },
+    "8": {
+      title: "Otto sorsi da distribuire",
+      body: "Distribuisci {sip8} tra almeno tre persone.",
+      kind: "drink",
+    },
+    "9": {
+      title: "Sfida al meglio di tre",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi perde due manche beve {sip2}.",
+      kind: "social",
+    },
+    "10": {
+      title: "Dieci secondi senza acqua",
+      body: "Per 10 secondi nessuno può dire la parola «acqua» mentre provi a distrarli. Il primo che la dice beve {sip2}; se resistono tutti, bevi tu.",
+      kind: "social",
+    },
+    J: {
+      title: "Maestro delle domande",
+      body: "Fino al prossimo Jack, chi risponde a una tua domanda beve {sip}.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Scelta della regina",
+      body: "Scegli due accompagnatori: bevono {sip} insieme. Poi distribuisci altri {sip3}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re di picche in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, tenuto in zona asciutta. Al quarto Re dividetelo senza entrare in vasca.",
+      kind: "drink",
+    },
+  },
+};
+
 const kindLabels: Record<ChallengeKind, string> = {
   drink: "Brindisi",
   physical: "Sfida fisica",
@@ -354,6 +626,7 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [names, setNames] = useState(["", "", "", ""]);
   const [players, setPlayers] = useState<string[]>([]);
+  const [gameMode, setGameMode] = useState<GameMode>("classic");
   const [mode, setMode] = useState<DrinkMode>("sips");
   const [deck, setDeck] = useState<Card[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
@@ -426,7 +699,8 @@ export default function Home() {
   }
 
   function resolveChallenge(card: Card) {
-    const source = CHALLENGES[card.suit.key][card.rank];
+    const challengeDeck = gameMode === "pool" ? POOL_CHALLENGES : CLASSIC_CHALLENGES;
+    const source = challengeDeck[card.suit.key][card.rank];
     const otherPlayers = players.filter((_, index) => index !== currentPlayer);
     const randomPlayer =
       otherPlayers[Math.floor(Math.random() * Math.max(otherPlayers.length, 1))] ?? currentName;
@@ -473,7 +747,7 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${gameMode === "pool" ? "pool-mode" : ""}`}>
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <div className="noise" />
@@ -494,7 +768,7 @@ export default function Home() {
               <span>of Death</span>
             </h1>
             <p className="hero-lead">
-              52 carte. 52 sfide. Ogni seme cambia le regole.
+              Modalità classica o piscina. 52 carte, 52 sfide per ogni modalità.
               <strong> Un solo iPhone, tutto il gruppo dentro al cerchio.</strong>
             </p>
             <div className="hero-actions">
@@ -568,8 +842,8 @@ export default function Home() {
                 <div><small>ESEMPIO</small><h3>Quattro semi, quattro sfide</h3></div>
               </div>
               <div className="eight-list">
-                {SUITS.map((suit) => {
-                  const challenge = CHALLENGES[suit.key]["8"];
+              {SUITS.map((suit) => {
+                  const challenge = CLASSIC_CHALLENGES[suit.key]["8"];
                   return (
                     <div key={suit.key}>
                       <b className={suit.key === "hearts" || suit.key === "diamonds" ? "red" : ""}>{suit.symbol}</b>
@@ -582,7 +856,7 @@ export default function Home() {
 
             <div className="how-to">
               <article><span>01</span><h3>Inserite i nomi</h3><p>Il telefono gestisce ordine e turni.</p></article>
-              <article><span>02</span><h3>Tocca il mazzo</h3><p>La carta rivela una sfida unica.</p></article>
+              <article><span>02</span><h3>Scegli la modalità</h3><p>Classica per la serata, Piscina per il bordo vasca.</p></article>
               <article><span>03</span><h3>Passa il telefono</h3><p>Il quarto Re chiude il cerchio.</p></article>
             </div>
 
@@ -632,6 +906,23 @@ export default function Home() {
               ))}
             </div>
 
+            <fieldset className="mode-picker game-mode-picker">
+              <legend>Dove si gioca?</legend>
+              <button className={gameMode === "classic" ? "selected" : ""} onClick={() => setGameMode("classic")}>
+                <span>♛</span><b>Classica</b><small>sfide da tavolo, movimento e sorsi</small>
+              </button>
+              <button className={`pool-option ${gameMode === "pool" ? "selected" : ""}`} onClick={() => setGameMode("pool")}>
+                <span>☀</span><b>Piscina</b><small>52 sfide estive, solo a bordo vasca</small>
+              </button>
+            </fieldset>
+
+            {gameMode === "pool" && (
+              <aside className="pool-warning">
+                <b>La partita resta fuori dall&apos;acqua.</b>
+                <p>Giocate in una zona asciutta: niente tuffi, corse, apnea o bicchieri di vetro.</p>
+              </aside>
+            )}
+
             <fieldset className="mode-picker">
               <legend>Cosa avete sul tavolo?</legend>
               <button className={mode === "sips" ? "selected" : ""} onClick={() => setMode("sips")}>
@@ -656,7 +947,7 @@ export default function Home() {
             <i>♥</i><i>♦</i><i>♣</i><i>♠</i>
           </div>
           <p className="eyebrow"><span /> Mazzo in movimento</p>
-          <h2>Il cerchio<br />si chiude.</h2>
+          <h2>{gameMode === "pool" ? <>Il bordo vasca<br />è pronto.</> : <>Il cerchio<br />si chiude.</>}</h2>
           <div className="shuffle-line"><span /></div>
           <p><strong>{players[0]}</strong> pesca per primo</p>
         </section>
@@ -708,11 +999,14 @@ export default function Home() {
 
                 <article className="challenge-panel">
                   <div className="challenge-kicker">
-                    <span>{kindLabels[revealed.challenge.kind]}</span>
+                    <span>{gameMode === "pool" ? "Piscina · " : ""}{kindLabels[revealed.challenge.kind]}</span>
                     <i>{revealed.suit.symbol} {revealed.suit.name}</i>
                   </div>
                   <h2>{revealed.challenge.title}</h2>
                   <p>{revealed.challenge.body}</p>
+                  {gameMode === "pool" && (
+                    <small className="pool-reminder">Solo fuori dall&apos;acqua · niente tuffi o corse</small>
+                  )}
                   <button className="primary-button full-button" onClick={nextTurn}>
                     {revealed.isFinalKing ? "Chiudi il cerchio" : "Sfida accettata"} <b>→</b>
                   </button>
@@ -736,7 +1030,10 @@ export default function Home() {
           <div className="end-crown" aria-hidden="true">♛</div>
           <p className="eyebrow"><span /> Quarto Re</p>
           <h2>Il cerchio<br />è completo.</h2>
-          <p className="end-copy"><strong>{finalPlayer}</strong> ha pescato l&apos;ultimo Re. Dividete il calice, fate il vostro brindisi e chiudetela bene.</p>
+          <p className="end-copy">
+            <strong>{finalPlayer}</strong> ha pescato l&apos;ultimo Re. Dividete il calice, fate il vostro brindisi e chiudetela bene.
+            {gameMode === "pool" && " Restate fuori dalla vasca e fate anche un giro d'acqua."}
+          </p>
           <div className="end-toast">SALUTE <span>♥ ♦ ♣ ♠</span></div>
           <button className="primary-button" onClick={() => setScreen("setup")}>Nuova partita <b>↻</b></button>
           <button className="text-button" onClick={() => setScreen("landing")}>Torna all&apos;inizio</button>
