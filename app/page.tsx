@@ -6,6 +6,7 @@ type Screen = "landing" | "rules" | "setup" | "transition" | "game" | "end";
 type SuitKey = "hearts" | "diamonds" | "clubs" | "spades";
 type Rank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "J" | "Q" | "K";
 type DrinkMode = "sips" | "shots";
+type GameMode = "classic" | "extreme" | "pool";
 type ChallengeKind = "drink" | "physical" | "social" | "wild";
 
 type Suit = {
@@ -40,272 +41,814 @@ const SUITS: Suit[] = [
 
 const RANKS: Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 
-const CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
+const CLASSIC_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
   hearts: {
     A: {
-      title: "Cascata rossa",
-      body: "Tutti brindano insieme. Tu puoi fermarti per primo; poi si procede in senso orario, senza fretta.",
+      title: "Cascata",
+      body: "Iniziate tutti a bere insieme. Tu puoi fermarti quando vuoi; chi è alla tua sinistra può fermarsi solo dopo di te, e così via.",
       kind: "drink",
     },
     "2": {
-      title: "Patto a due",
-      body: "Scegli {randomPlayer}. Fate un brindisi incrociato: chi rompe per primo il contatto visivo prende {sip}.",
-      kind: "social",
+      title: "Due sorsi da regalare",
+      body: "Hai {sip2} da assegnare. Puoi darli entrambi alla stessa persona oppure dividerli tra due giocatori.",
+      kind: "drink",
     },
     "3": {
-      title: "Due vere, una falsa",
-      body: "Hai 15 secondi per dire tre cose su di te. Se il gruppo scopre la bugia prendi {sip}; altrimenti scegli chi beve.",
+      title: "Due verità e una bugia",
+      body: "Racconta tre cose su di te: due vere e una falsa. Se il gruppo indovina la bugia, bevi {sip}; altrimenti distribuisci {sip2}.",
       kind: "social",
     },
     "4": {
       title: "Mano sul cuore",
-      body: "Appoggia la mano sul cuore. Tutti devono imitarti: l'ultimo prende {sip}.",
+      body: "Metti una mano sul cuore. Tutti devono copiarti: l'ultimo che se ne accorge beve {sip}.",
       kind: "physical",
     },
     "5": {
-      title: "Complimento lampo",
-      body: "{randomPlayer} ha 5 secondi per fare un complimento sincero a qualcuno. Se esita, prende {sip}.",
+      title: "Complimento o sorso",
+      body: "{randomPlayer} ha 5 secondi per fare un complimento sincero a qualcuno. Se non ci riesce, beve {sip}.",
       kind: "social",
     },
     "6": {
-      title: "Anime gemelle",
-      body: "Scegli un compagno. Fino al tuo prossimo turno, quando uno dei due beve, anche l'altro prende un piccolo sorso.",
+      title: "Compagno di bevuta",
+      body: "Scegli un compagno. Fino al tuo prossimo turno, ogni volta che uno di voi beve, anche l'altro beve {sip}.",
       kind: "wild",
     },
     "7": {
-      title: "Brindisi impossibile",
-      body: "Tu e {randomPlayer} bevete guardandovi negli occhi. Chi ride per primo prende anche {sip}.",
-      kind: "drink",
+      title: "Sguardo fisso",
+      body: "Tu e {randomPlayer} vi guardate negli occhi per 10 secondi. Il primo che ride o distoglie lo sguardo beve {sip2}.",
+      kind: "social",
     },
     "8": {
-      title: "Specchio rosso",
-      body: "Scegli {randomPlayer}. Per 15 secondi deve copiare ogni tuo movimento. Il primo che sbaglia prende {sip}.",
+      title: "Lo specchio",
+      body: "Scegli {randomPlayer}. Per 15 secondi deve copiare tutti i tuoi movimenti. Al primo errore beve {sip}.",
       kind: "physical",
     },
     "9": {
-      title: "Voto segreto",
-      body: "Al tre tutti indicano il giocatore più elegante della serata. Chi riceve più voti assegna {sip2}.",
-      kind: "social",
+      title: "Nove sorsi da distribuire",
+      body: "Hai {sip9} da distribuire. Puoi scegliere chi vuoi, ma non puoi assegnarne più di 3 alla stessa persona.",
+      kind: "drink",
     },
     "10": {
-      title: "Cuori incrociati",
-      body: "Nomina due giocatori. Devono scambiarsi posto senza parlare: l'ultimo a sedersi prende {sip}.",
-      kind: "physical",
+      title: "Dieci sorsi da distribuire",
+      body: "Hai {sip10} da distribuire come vuoi. Puoi darli tutti a una persona oppure dividerli tra più giocatori.",
+      kind: "drink",
     },
     J: {
-      title: "Jack cambia posto",
-      body: "Tutti in piedi: cambiate posto. L'ultimo a trovare una nuova posizione prende {sip}.",
+      title: "Cambio di posto",
+      body: "Tutti in piedi e tutti devono cambiare posto. L'ultimo che si siede beve {sip2}.",
       kind: "physical",
     },
     Q: {
-      title: "Regina del ritmo",
-      body: "Crea una sequenza di tre gesti. {randomPlayer} deve copiarla al primo colpo oppure prende {sip}.",
+      title: "La coreografia",
+      body: "Inventa tre movimenti. {randomPlayer} deve ripeterli nello stesso ordine: se sbaglia, beve {sip2}.",
       kind: "physical",
     },
     K: {
       title: "Re di cuori",
-      body: "Versa una piccola quantità nel calice centrale. Al quarto Re il calice può essere diviso: nessuno è obbligato a finirlo.",
+      body: "Versa una piccola quantità nel bicchiere al centro. Chi pesca il quarto Re decide se berlo o dividerlo con il gruppo.",
       kind: "drink",
     },
   },
   diamonds: {
     A: {
-      title: "Numero fortunato",
-      body: "Il numero del destino è {number}. Se lo indovini prima che appaia, assegni {sip2}; altrimenti prendi {sip}.",
+      title: "Il numero fortunato",
+      body: "Il numero uscito è {number}. Conta i giocatori partendo da te: la persona su cui cade il numero beve {sip2}.",
       kind: "wild",
     },
     "2": {
       title: "Rosso o nero",
-      body: "Scegli rosso o nero per la prossima carta. Se indovini assegni {sip}; se sbagli lo prendi tu.",
+      body: "Prima della prossima carta scegli rosso o nero. Se indovini distribuisci {sip2}; se sbagli li bevi tu.",
       kind: "wild",
     },
     "3": {
-      title: "Torre preziosa",
-      body: "Impila tre oggetti sicuri in 15 secondi. Se la torre cade prendi {sip}; se regge scegli chi beve.",
+      title: "La torre",
+      body: "Hai 15 secondi per impilare tre oggetti sicuri. Se la torre cade, bevi {sip2}; se resta in piedi, distribuiscili.",
       kind: "physical",
     },
     "4": {
-      title: "Mano ferma",
-      body: "Sfida {randomPlayer}: bicchiere a braccio teso per 10 secondi. Il primo che piega il gomito prende {sip}.",
-      kind: "physical",
+      title: "Quattro sorsi da distribuire",
+      body: "Hai {sip4} da distribuire tra gli altri giocatori. Decidi tu quanti darne a ciascuno.",
+      kind: "drink",
     },
     "5": {
-      title: "Cinque tocchi",
-      body: "Batti sul tavolo una sequenza di cinque tocchi. {randomPlayer} deve ripeterla: chi sbaglia prende {sip}.",
+      title: "Ripeti il ritmo",
+      body: "Batti sul tavolo una sequenza di cinque colpi. {randomPlayer} deve ripeterla senza errori oppure beve {sip2}.",
       kind: "physical",
     },
     "6": {
-      title: "Diamante caldo",
-      body: "Passate un sottobicchiere mentre conti lentamente fino a sei a occhi chiusi. Chi lo tiene alla fine prende {sip}.",
-      kind: "physical",
+      title: "Sei sorsi da distribuire",
+      body: "Hai {sip6} da distribuire. Puoi coinvolgere quante persone vuoi.",
+      kind: "drink",
     },
     "7": {
       title: "Pari o dispari",
-      body: "Il risultato è {number}. Se avevi scelto la parità giusta assegni {sip2}; altrimenti prendi {sip}.",
+      body: "Il numero uscito è {number}. Se è pari bevono i giocatori in posizione pari; se è dispari bevono quelli in posizione dispari.",
       kind: "wild",
     },
     "8": {
-      title: "Equilibrio di lusso",
-      body: "Tu e {randomPlayer} restate su una gamba con una mano in alto per 8 secondi. Chi cede prende {sip}.",
+      title: "Mano ferma",
+      body: "Tu e {randomPlayer} tenete il bicchiere a braccio teso per 8 secondi. Il primo che piega il gomito beve {sip2}.",
       kind: "physical",
     },
     "9": {
-      title: "Nove dita",
-      body: "Tutti mostrano da zero a cinque dita. Chi mostra il tuo stesso numero prende {sip}; se sei solo, lo assegni.",
-      kind: "wild",
-    },
-    "10": {
-      title: "Duello dorato",
-      body: "Scegli due giocatori: carta-forbice-sasso, al meglio di tre. Chi perde prende {sip2}.",
+      title: "Mesi al contrario",
+      body: "Hai 9 secondi per dire i mesi dell'anno al contrario. Se sbagli o ti blocchi, bevi {sip2}.",
       kind: "social",
     },
+    "10": {
+      title: "Dieci sorsi, massimo cinque",
+      body: "Distribuisci {sip10}, ma non puoi assegnarne più di 5 alla stessa persona.",
+      kind: "drink",
+    },
     J: {
-      title: "Jackpot",
-      body: "La fortuna ha scelto {randomPlayer}: prende {sip}, poi sceglie un compagno per il brindisi.",
+      title: "Fortuna sfacciata",
+      body: "Hai vinto: distribuisci {sip5} tra gli altri giocatori come preferisci.",
       kind: "drink",
     },
     Q: {
       title: "Regina di ghiaccio",
-      body: "Fai una posa da statua. L'ultimo a congelarsi nella stessa posa prende {sip}.",
+      body: "Mettiti in posa senza dire nulla. L'ultimo che ti imita beve {sip2}.",
       kind: "physical",
     },
     K: {
       title: "Re di quadri",
-      body: "Aggiungi una piccola quantità al calice centrale. Il quarto Re decide con chi condividere il brindisi finale.",
+      body: "Versa una piccola quantità nel bicchiere al centro. Se è il quarto Re, scegli con chi condividere il brindisi finale.",
       kind: "drink",
     },
   },
   clubs: {
     A: {
-      title: "Onda d'urto",
-      body: "Partendo da te, alzatevi uno dopo l'altro come un'onda. Chi rompe il ritmo prende {sip}.",
+      title: "L'onda",
+      body: "Partendo da te, alzatevi uno alla volta in senso orario. Chi parte fuori tempo beve {sip}.",
       kind: "physical",
     },
     "2": {
-      title: "High-five fantasma",
-      body: "Tenta un high-five con {randomPlayer} ma puoi cambiare mano una volta. Chi cade nel bluff prende {sip}.",
+      title: "Mano sul tavolo",
+      body: "Dai un colpo sul tavolo. Tutti devono fare lo stesso: l'ultimo beve {sip2}.",
       kind: "physical",
     },
     "3": {
-      title: "Tris in posa",
-      body: "Scegli due giocatori: avete 5 secondi per creare insieme una posa da copertina. Se il gruppo non approva, bevete.",
+      title: "Posa di gruppo",
+      body: "Scegli due giocatori. Avete 5 secondi per inventare una posa insieme; se uno dei tre si muove o ride, beve {sip}.",
       kind: "physical",
     },
     "4": {
-      title: "Quattro direzioni",
-      body: "Al tre tutti indicano su, giù, destra o sinistra. Chi sceglie la direzione meno votata prende {sip}.",
+      title: "Su, giù, destra o sinistra",
+      body: "Al tre, tutti indicano una delle quattro direzioni. Chi sceglie la direzione meno votata beve {sip2}.",
       kind: "wild",
     },
     "5": {
-      title: "Foto finish",
-      body: "Tu e {randomPlayer} dovete toccare un oggetto sicuro scelto dal gruppo. L'ultimo prende {sip}.",
-      kind: "physical",
+      title: "Cinque sorsi in palio",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi vince distribuisce {sip5}.",
+      kind: "drink",
     },
     "6": {
       title: "Sei squat",
-      body: "Chi vuole partecipa: fate fino a sei squat lenti. Il primo che si ferma prende {sip}; chi non può, passa senza penalità.",
+      body: "Chi vuole partecipa: fate sei squat lenti. Il primo che si ferma beve {sip}; chi non può farli passa senza penalità.",
       kind: "physical",
     },
     "7": {
-      title: "Mimo espresso",
-      body: "Mima un'azione per 7 secondi, senza parole. Se nessuno indovina prendi {sip}, altrimenti lo assegni.",
+      title: "Mimo in sette secondi",
+      body: "Mima un'azione per 7 secondi. Se qualcuno indovina, distribuisci {sip2}; altrimenti li bevi tu.",
       kind: "physical",
     },
     "8": {
-      title: "Muro contro muro",
-      body: "Sfida {randomPlayer} a una mini wall-sit di 8 secondi. Chi si alza per primo prende {sip}. Potete sempre passare.",
+      title: "Schiena al muro",
+      body: "Tu e {randomPlayer} restate con la schiena al muro e le ginocchia piegate per 8 secondi. Chi si alza per primo beve {sip2}.",
       kind: "physical",
     },
     "9": {
-      title: "Clap crash",
-      body: "Crea un ritmo di tre battiti. Tutti lo ripetono più veloce: il primo fuori tempo prende {sip}.",
+      title: "Batti il ritmo",
+      body: "Crea un ritmo di tre battiti. Gli altri lo ripetono uno alla volta: il primo che sbaglia beve {sip2}.",
       kind: "physical",
     },
     "10": {
-      title: "Cambio totale",
-      body: "Tutti cambiano posto e indossano un accessorio diverso. L'ultimo pronto prende {sip}.",
+      title: "Corsa al posto",
+      body: "Tutti devono cambiare posto. L'ultimo che si siede beve {sip2}.",
       kind: "physical",
     },
     J: {
-      title: "Jolly del caos",
-      body: "La prossima penalità che ricevi può essere condivisa con un giocatore a tua scelta.",
+      title: "Il legislatore",
+      body: "Inventa una regola semplice per tutti. Entra in vigore subito e dura fino alla fine della partita: chi la infrange beve {sip}. Il gruppo può rifiutarla se mette qualcuno a disagio.",
       kind: "wild",
     },
     Q: {
-      title: "Regina comanda",
-      body: "Ordina una posa sicura e assurda. L'ultimo a eseguirla prende {sip}.",
+      title: "La regina comanda",
+      body: "Scegli una posa semplice. Tutti devono copiarla: l'ultimo beve {sip2}.",
       kind: "physical",
     },
     K: {
       title: "Re di fiori",
-      body: "Aggiungi una piccola quantità al calice. Al quarto Re: brindisi finale, foto di gruppo e calice condivisibile.",
+      body: "Versa una piccola quantità nel bicchiere al centro. Se è il quarto Re, fate un brindisi di gruppo e decidete come dividerlo.",
       kind: "drink",
     },
   },
   spades: {
     A: {
-      title: "Nome proibito",
-      body: "Fino al tuo prossimo turno nessuno può dire il tuo nome. Chi lo pronuncia prende {sip}.",
+      title: "Nome vietato",
+      body: "Fino al tuo prossimo turno nessuno può pronunciare il tuo nome. Chi lo dice beve {sip}.",
       kind: "wild",
     },
     "2": {
       title: "Duello di sguardi",
-      body: "Sfida {randomPlayer}: dieci secondi senza ridere né distogliere lo sguardo. Chi cede prende {sip}.",
+      body: "Tu e {randomPlayer} vi guardate negli occhi per 10 secondi. Il primo che ride o guarda altrove beve {sip2}.",
       kind: "social",
     },
     "3": {
-      title: "Tre passi oscuri",
-      body: "Inventa tre passi di danza. {randomPlayer} li ripete: il gruppo decide chi dei due prende {sip}.",
-      kind: "physical",
+      title: "Tre sorsi da distribuire",
+      body: "Hai {sip3} da distribuire tra gli altri giocatori. Puoi darli tutti alla stessa persona oppure dividerli.",
+      kind: "drink",
     },
     "4": {
-      title: "Statua nera",
-      body: "Quando tocchi il tavolo tutti devono immobilizzarsi. L'ultimo a fermarsi prende {sip}.",
+      title: "Statua",
+      body: "Prima del tuo prossimo turno puoi gridare «Statua!». Tutti devono fermarsi: l'ultimo che si immobilizza beve {sip2}.",
       kind: "physical",
     },
     "5": {
-      title: "Verità secca",
-      body: "Rispondi a una domanda leggera scelta dal gruppo oppure prendi {sip}. Nessuna domanda invadente.",
+      title: "Rispondi o bevi",
+      body: "Il gruppo ti fa una domanda. Puoi rispondere oppure bere {sip2}; le domande troppo personali si possono sempre rifiutare.",
       kind: "social",
     },
     "6": {
-      title: "Ombra perfetta",
-      body: "Fai una posa di profilo. {randomPlayer} deve ricreare la tua ombra in 6 secondi o prende {sip}.",
-      kind: "physical",
+      title: "Sei sorsi per il gruppo",
+      body: "Distribuisci {sip6} tra gli altri giocatori. Devi coinvolgere almeno due persone.",
+      kind: "drink",
     },
     "7": {
       title: "Non ridere",
-      body: "Hai 7 secondi per far ridere {randomPlayer}, senza toccarlo. Se ride beve; se resiste bevi tu.",
+      body: "Hai 7 secondi per far ridere {randomPlayer}, senza toccarlo. Se ride beve {sip2}; se resiste, li bevi tu.",
       kind: "social",
     },
     "8": {
-      title: "Voto al buio",
-      body: "Tutti chiudono gli occhi e indicano la persona più rumorosa. Chi riceve più voti prende {sip}.",
-      kind: "social",
+      title: "Otto sorsi da distribuire",
+      body: "Hai {sip8} da distribuire. Devi assegnarli ad almeno due giocatori.",
+      kind: "drink",
     },
     "9": {
-      title: "Nove vite",
-      body: "Sfida {randomPlayer} a carta-forbice-sasso, al meglio di tre. Chi perde prende {sip}.",
+      title: "Sfida al meglio di tre",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi perde due manche beve {sip2}.",
       kind: "social",
     },
     "10": {
-      title: "Countdown muto",
-      body: "Da dieci a uno usando solo le dita, senza turni. Se due giocatori agiscono insieme, entrambi prendono {sip}.",
-      kind: "wild",
+      title: "Dieci secondi di silenzio",
+      body: "Per 10 secondi nessuno può parlare o ridere mentre tu provi a distrarli. Il primo che fa rumore beve {sip2}; se resistono tutti, bevi tu.",
+      kind: "social",
     },
     J: {
-      title: "Guardia nera",
-      body: "Fino al prossimo Jack, quando incroci le braccia tutti devono copiarti. L'ultimo prende {sip}.",
+      title: "Maestro delle domande",
+      body: "Fino al prossimo Jack, chi risponde a una tua domanda beve {sip}. Vale anche se la risposta è solo «sì» o «no».",
       kind: "wild",
     },
     Q: {
-      title: "Regina del buio",
-      body: "Tutti chiudono gli occhi. Sposta un oggetto sicuro: {randomPlayer} deve indovinare dov'è o prende {sip}.",
-      kind: "social",
+      title: "Scelta della regina",
+      body: "Scegli due giocatori: bevono {sip} insieme. Poi distribuisci altri {sip3} come preferisci.",
+      kind: "drink",
     },
     K: {
       title: "Re di picche",
-      body: "Ultimo contributo al calice. Se è il quarto Re, scegliete insieme se dividerlo o sostituirlo con un brindisi leggero.",
+      body: "Versa una piccola quantità nel bicchiere al centro. Se è il quarto Re, puoi dividerlo con chi vuoi.",
+      kind: "drink",
+    },
+  },
+};
+
+const POOL_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
+  hearts: {
+    A: {
+      title: "Brindisi al sole",
+      body: "Tutti bevono {sip}, sempre fuori dall'acqua. Poi distribuisci altri {sip2} a chi vuoi.",
+      kind: "drink",
+    },
+    "2": {
+      title: "Bagnino del gruppo",
+      body: "Scegli chi sarebbe il bagnino migliore del gruppo: riceve {sip2} da distribuire agli altri.",
+      kind: "social",
+    },
+    "3": {
+      title: "Foto da vacanza",
+      body: "Scegli due giocatori e mettetevi in posa da foto, restando seduti. Il primo che ride beve {sip}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Quattro sorsi all'ombra",
+      body: "Distribuisci {sip4} tra chi si trova all'ombra. Se nessuno è all'ombra, scegli liberamente.",
+      kind: "drink",
+    },
+    "5": {
+      title: "Cinque sorsi da regalare",
+      body: "Distribuisci {sip5} coinvolgendo almeno due persone.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Compagni di ombrellone",
+      body: "Scegli un compagno. Fino al tuo prossimo turno, ogni penalità che ricevete viene divisa tra voi due.",
+      kind: "wild",
+    },
+    "7": {
+      title: "Sette sorsi freschi",
+      body: "Distribuisci {sip7}, ma non puoi assegnarne più di 2 alla stessa persona.",
+      kind: "drink",
+    },
+    "8": {
+      title: "La posa da piscina",
+      body: "Inventa una posa estiva da seduto. {randomPlayer} deve copiarla: se sbaglia, beve {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Nove sorsi sul bordo",
+      body: "Distribuisci {sip9} tra almeno tre giocatori.",
+      kind: "drink",
+    },
+    "10": {
+      title: "Dieci sorsi da piscina",
+      body: "Hai {sip10} da distribuire tra almeno due persone.",
+      kind: "drink",
+    },
+    J: {
+      title: "Cambio di lettino",
+      body: "Indicate un nuovo posto asciutto dove sedervi e spostatevi camminando. L'ultimo pronto beve {sip2}.",
+      kind: "physical",
+    },
+    Q: {
+      title: "Regina dell'ombrellone",
+      body: "Scegli due accompagnatori: bevono {sip} ciascuno. Poi distribuisci altri {sip3}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re della piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, tenuto lontano dall'acqua. Chi pesca il quarto Re lo divide fuori dalla vasca.",
+      kind: "drink",
+    },
+  },
+  diamonds: {
+    A: {
+      title: "Numero del lettino",
+      body: "Il numero uscito è {number}. Conta i giocatori partendo da te: la persona scelta beve {sip2}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Sole o ombra",
+      body: "Tutti indicano sole oppure ombra. Chi appartiene al gruppo meno numeroso beve {sip}.",
+      kind: "wild",
+    },
+    "3": {
+      title: "Tre sorsi da regalare",
+      body: "Distribuisci {sip3} come preferisci.",
+      kind: "drink",
+    },
+    "4": {
+      title: "Pausa crema solare",
+      body: "Chi deve rimettere la protezione si prende una pausa e lo fa. Nel frattempo distribuisci {sip2} agli altri.",
+      kind: "social",
+    },
+    "5": {
+      title: "Cinque sorsi con limite",
+      body: "Distribuisci {sip5}, con un massimo di 2 per persona.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Sei sorsi in coppia",
+      body: "Scegli due giocatori e dividi {sip6} tra loro.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Sette secondi da copertina",
+      body: "{randomPlayer} deve restare in posa da copertina per 7 secondi, da seduto. Se ride o si muove, beve {sip2}.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Otto sorsi, quattro persone",
+      body: "Distribuisci {sip8} tra quattro persone. Se siete in meno, coinvolgi tutti gli altri giocatori.",
+      kind: "drink",
+    },
+    "9": {
+      title: "DJ della piscina",
+      body: "Scegli la prossima canzone e distribuisci {sip3}.",
+      kind: "social",
+    },
+    "10": {
+      title: "Dieci sorsi a coppie",
+      body: "Formate delle coppie. Distribuisci {sip10} tra le coppie come preferisci.",
+      kind: "drink",
+    },
+    J: {
+      title: "Jolly d'acqua",
+      body: "Conserva questa carta: puoi sostituire interamente la tua prossima penalità con un bicchiere d'acqua.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Regina dei lettini",
+      body: "Scegli la persona più rilassata del gruppo: sarà lei a distribuire {sip4}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re di quadri in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, sempre lontano dalla vasca. Al quarto Re dividetelo fuori dall'acqua.",
+      kind: "drink",
+    },
+  },
+  clubs: {
+    A: {
+      title: "Onda da seduti",
+      body: "Create un'onda alzando le braccia uno alla volta, senza alzarvi. Chi parte fuori tempo beve {sip}.",
+      kind: "physical",
+    },
+    "2": {
+      title: "Tocca il telo",
+      body: "Tutti devono toccare il proprio asciugamano restando al posto. L'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    "3": {
+      title: "Tre pose da vacanza",
+      body: "Mostra tre pose da seduto. {randomPlayer} deve ripeterle nello stesso ordine oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Quattro direzioni",
+      body: "Al tre, indicate piscina, ombra, bar oppure uscita. Chi sceglie la direzione meno votata beve {sip2}.",
+      kind: "wild",
+    },
+    "5": {
+      title: "Cinque sorsi in palio",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi vince distribuisce {sip5}.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Sei battiti sul lettino",
+      body: "Batti un ritmo di sei colpi. {randomPlayer} deve ripeterlo oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "7": {
+      title: "Mimo acquatico",
+      body: "Da seduto, mima uno stile di nuoto. Se qualcuno indovina distribuisci {sip2}; altrimenti li bevi tu.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Asciugamano in testa",
+      body: "Tieni un asciugamano in equilibrio sulla testa per 8 secondi, restando seduto. Se cade, bevi {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Ritmo dell'estate",
+      body: "Crea un ritmo di tre battiti e ripetilo tre volte. {randomPlayer} deve copiarlo oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "10": {
+      title: "Sorsi e acqua",
+      body: "Distribuisci {sip8}. Subito dopo, tutti fanno anche un giro d'acqua.",
+      kind: "drink",
+    },
+    J: {
+      title: "Il legislatore da piscina",
+      body: "Inventa una regola semplice per tutti. Entra in vigore subito e dura fino alla fine: chi la infrange beve {sip}. Deve restare sicura, da seduti e fuori dall'acqua.",
+      kind: "wild",
+    },
+    Q: {
+      title: "La regina comanda",
+      body: "Scegli una posa sicura da seduto. Tutti devono copiarla: l'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    K: {
+      title: "Re di fiori in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, lontano dall'acqua. Al quarto Re fate il brindisi in zona asciutta.",
+      kind: "drink",
+    },
+  },
+  spades: {
+    A: {
+      title: "Piscina è vietato",
+      body: "Fino al tuo prossimo turno, chi pronuncia la parola «piscina» beve {sip}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Sguardo da bagnino",
+      body: "Tu e {randomPlayer} vi guardate per 10 secondi. Il primo che ride o distoglie lo sguardo beve {sip2}.",
+      kind: "social",
+    },
+    "3": {
+      title: "Tre sorsi da distribuire",
+      body: "Distribuisci {sip3} tra gli altri giocatori.",
+      kind: "drink",
+    },
+    "4": {
+      title: "Statua da lettino",
+      body: "Prima del tuo prossimo turno puoi gridare «Statua!». Tutti si fermano restando seduti: l'ultimo beve {sip2}.",
+      kind: "physical",
+    },
+    "5": {
+      title: "Verità da vacanza",
+      body: "Rispondi a una domanda leggera sulle vacanze oppure bevi {sip2}. Le domande personali si possono sempre rifiutare.",
+      kind: "social",
+    },
+    "6": {
+      title: "Sei sorsi all'ombra",
+      body: "Distribuisci {sip6}. Se siete al sole, prima spostatevi con calma in una zona d'ombra.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Non ridere al sole",
+      body: "Hai 7 secondi per far ridere {randomPlayer}, senza toccarlo e restando seduto. Chi perde beve {sip2}.",
+      kind: "social",
+    },
+    "8": {
+      title: "Otto sorsi da distribuire",
+      body: "Distribuisci {sip8} tra almeno tre persone.",
+      kind: "drink",
+    },
+    "9": {
+      title: "Sfida al meglio di tre",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso. Chi perde due manche beve {sip2}.",
+      kind: "social",
+    },
+    "10": {
+      title: "Dieci secondi senza acqua",
+      body: "Per 10 secondi nessuno può dire la parola «acqua» mentre provi a distrarli. Il primo che la dice beve {sip2}; se resistono tutti, bevi tu.",
+      kind: "social",
+    },
+    J: {
+      title: "Maestro delle domande",
+      body: "Fino al prossimo Jack, chi risponde a una tua domanda beve {sip}.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Scelta della regina",
+      body: "Scegli due accompagnatori: bevono {sip} insieme. Poi distribuisci altri {sip3}.",
+      kind: "drink",
+    },
+    K: {
+      title: "Re di picche in piscina",
+      body: "Versa una piccola quantità nel bicchiere al centro, tenuto in zona asciutta. Al quarto Re dividetelo senza entrare in vasca.",
+      kind: "drink",
+    },
+  },
+};
+
+const EXTREME_CHALLENGES: Record<SuitKey, Record<Rank, Challenge>> = {
+  hearts: {
+    A: {
+      title: "Catena di confessioni",
+      body: "A turno, tutti raccontano una piccola confessione divertente mai detta al gruppo. Chi passa beve {sip}.",
+      kind: "social",
+    },
+    "2": {
+      title: "Doppio bersaglio",
+      body: "Scegli due persone: si fissano per 15 secondi. La prima che ride beve {sip2}; chi resiste distribuisce {sip2}.",
+      kind: "social",
+    },
+    "3": {
+      title: "Verità senza filtro",
+      body: "Di' a {randomPlayer} una cosa sincera e non offensiva che non gli hai mai detto. Se passi, bevi {sip2}.",
+      kind: "social",
+    },
+    "4": {
+      title: "Cuore di pietra",
+      body: "Tutti mettono una mano sul cuore e restano immobili. Prova a farli ridere: il primo che cede beve {sip2}; se resistono tutti, bevi tu.",
+      kind: "physical",
+    },
+    "5": {
+      title: "Il più probabile",
+      body: "Fai una domanda «Chi è più probabile che…?». Tutti indicano qualcuno: la persona più votata distribuisce {sip5}.",
+      kind: "social",
+    },
+    "6": {
+      title: "Patto estremo",
+      body: "Scegli un compagno. Fino alla prossima carta di Cuori, ogni penalità ricevuta da uno viene divisa tra entrambi.",
+      kind: "wild",
+    },
+    "7": {
+      title: "Faccia di pietra",
+      body: "Hai 15 secondi per far ridere {randomPlayer} senza toccarlo. Chi perde beve {sip2}.",
+      kind: "social",
+    },
+    "8": {
+      title: "Imitazione spietata",
+      body: "Imita un giocatore del gruppo senza nominarlo. Se viene indovinato distribuisci {sip4}; altrimenti bevi {sip2}.",
+      kind: "social",
+    },
+    "9": {
+      title: "Nove sorsi, nessun favorito",
+      body: "Distribuisci {sip9} coinvolgendo almeno quattro persone, con un massimo di 3 a testa.",
+      kind: "drink",
+    },
+    "10": {
+      title: "Dieci sorsi in rivolta",
+      body: "Distribuisci {sip10}, ma ogni giocatore può riceverne al massimo 3.",
+      kind: "drink",
+    },
+    J: {
+      title: "Confessione o penitenza",
+      body: "Il gruppo sceglie una domanda. Puoi rispondere sinceramente oppure bere {sip2}; puoi sempre rifiutare domande troppo personali.",
+      kind: "social",
+    },
+    Q: {
+      title: "Regina del caos",
+      body: "Inventa un gesto segreto. Fino alla prossima Regina puoi farlo quando vuoi: l'ultimo che ti copia beve {sip}.",
+      kind: "wild",
+    },
+    K: {
+      title: "Re di cuori estremo",
+      body: "Versa una piccola quantità nel bicchiere al centro. Chi pesca il quarto Re decide come dividerlo con il gruppo.",
+      kind: "drink",
+    },
+  },
+  diamonds: {
+    A: {
+      title: "Roulette del duello",
+      body: "Il numero uscito è {number}. Conta i giocatori: la persona scelta ti sfida a carta, forbice, sasso. Chi perde beve {sip2}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Rosso o nero: doppio rischio",
+      body: "Scegli rosso o nero prima della prossima carta. Se indovini distribuisci {sip4}; se sbagli bevi {sip2}.",
+      kind: "wild",
+    },
+    "3": {
+      title: "Torre impossibile",
+      body: "Hai 20 secondi per impilare cinque oggetti sicuri. Se la torre cade bevi {sip2}; se resta in piedi distribuisci {sip3}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Reazione muta",
+      body: "Mima un'emozione estrema senza suoni. Se nessuno la indovina in 10 secondi bevi {sip2}; altrimenti distribuisci {sip4}.",
+      kind: "physical",
+    },
+    "5": {
+      title: "Ritmo senza pietà",
+      body: "Crea cinque battiti e ripetili sempre più velocemente. {randomPlayer} deve copiarli oppure beve {sip2}.",
+      kind: "physical",
+    },
+    "6": {
+      title: "Sei sorsi con limite",
+      body: "Distribuisci {sip6}, coinvolgendo almeno tre persone e senza superare 2 a testa.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Duello di pollici",
+      body: "Sfida {randomPlayer} a una manche di lotta dei pollici. Chi perde beve {sip2}.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Equilibrio glaciale",
+      body: "Tu e {randomPlayer}, da seduti, tenete un oggetto leggero sul palmo per 8 secondi. Il primo che lo fa cadere beve {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Comando al contrario",
+      body: "Per 15 secondi dai ordini semplici: tutti devono fare l'opposto. Il primo che sbaglia beve {sip2}.",
+      kind: "physical",
+    },
+    "10": {
+      title: "Dieci sorsi, cinque bersagli",
+      body: "Distribuisci {sip10} tra cinque persone. Se siete in meno, coinvolgi tutti gli altri.",
+      kind: "drink",
+    },
+    J: {
+      title: "Il tribunale",
+      body: "Scegli due giocatori: hanno 20 secondi per difendere due idee assurde opposte. Il gruppo vota e chi perde beve {sip2}.",
+      kind: "social",
+    },
+    Q: {
+      title: "Regina di ghiaccio estrema",
+      body: "Resta immobile fino alla prossima carta. Se ti muovi o ridi bevi {sip2}; puoi passare senza penalità se non ti senti comodo.",
+      kind: "physical",
+    },
+    K: {
+      title: "Re di quadri estremo",
+      body: "Versa una piccola quantità nel bicchiere al centro. Al quarto Re, dividetelo e fate subito anche un giro d'acqua.",
+      kind: "drink",
+    },
+  },
+  clubs: {
+    A: {
+      title: "Onda doppia",
+      body: "Fate un'onda completa in senso orario e subito una al contrario. Chi rompe il ritmo beve {sip2}.",
+      kind: "physical",
+    },
+    "2": {
+      title: "Riflessi traditori",
+      body: "Indica rapidamente testa, spalla o tavolo mentre dici un'altra parola. {randomPlayer} deve seguire il gesto, non la voce: al primo errore beve {sip2}.",
+      kind: "physical",
+    },
+    "3": {
+      title: "Duello di pose",
+      body: "Tu e {randomPlayer} alternate tre pose sempre più assurde. Il gruppo sceglie la migliore; chi perde beve {sip2}.",
+      kind: "physical",
+    },
+    "4": {
+      title: "Quattro direzioni estreme",
+      body: "Al tre, tutti indicano su, giù, destra o sinistra. Chi sceglie la direzione meno votata beve {sip2}; in caso di parità bevono tutti i gruppi in parità.",
+      kind: "wild",
+    },
+    "5": {
+      title: "Cinque sorsi al meglio di cinque",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso al meglio di cinque. Chi vince distribuisce {sip5}.",
+      kind: "drink",
+    },
+    "6": {
+      title: "Sei battiti esplosivi",
+      body: "Crea un ritmo di sei colpi. Il gruppo lo ripete insieme: chi va fuori tempo beve {sip}.",
+      kind: "physical",
+    },
+    "7": {
+      title: "Mimo impossibile",
+      body: "Mima contemporaneamente un personaggio e un'azione scelti dal gruppo. Se indovinano distribuisci {sip3}; altrimenti bevi {sip2}.",
+      kind: "physical",
+    },
+    "8": {
+      title: "Gambe d'acciaio",
+      body: "Tu e {randomPlayer}, da seduti, tenete una gamba sollevata per 8 secondi. Il primo che la abbassa beve {sip2}.",
+      kind: "physical",
+    },
+    "9": {
+      title: "Ritmo a tradimento",
+      body: "Crea un ritmo di tre battiti. Dopo due giri cambiane uno senza avvisare: il primo che copia il vecchio ritmo beve {sip2}.",
+      kind: "physical",
+    },
+    "10": {
+      title: "Cambio posto al rallentatore",
+      body: "Tutti cambiano posto muovendosi solo al rallentatore, senza correre. L'ultimo che si siede beve {sip2}.",
+      kind: "physical",
+    },
+    J: {
+      title: "Il legislatore estremo",
+      body: "Inventa una regola semplice che dura fino alla fine. Chi la infrange beve {sip}. Il gruppo può annullarla se è pericolosa, offensiva o mette qualcuno a disagio.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Comando lampo",
+      body: "Mostra tre gesti in rapida sequenza. Tutti devono copiarli: l'ultimo o chi sbaglia beve {sip2}.",
+      kind: "physical",
+    },
+    K: {
+      title: "Re di fiori estremo",
+      body: "Versa una piccola quantità nel bicchiere al centro. Il quarto Re lo divide tra almeno tre persone.",
+      kind: "drink",
+    },
+  },
+  spades: {
+    A: {
+      title: "Parola proibita",
+      body: "Scegli una parola comune. Fino al tuo prossimo turno, chi la pronuncia beve {sip}.",
+      kind: "wild",
+    },
+    "2": {
+      title: "Duello senza sorriso",
+      body: "Tu e {randomPlayer} vi fissate per 20 secondi. Il primo che ride, parla o distoglie lo sguardo beve {sip2}.",
+      kind: "social",
+    },
+    "3": {
+      title: "Tre voti scomodi",
+      body: "Fai una domanda «Chi del gruppo…?». Tutti votano: la persona scelta distribuisce {sip3}.",
+      kind: "social",
+    },
+    "4": {
+      title: "Statua a tradimento",
+      body: "Una volta prima del tuo prossimo turno puoi gridare «Statua!». L'ultimo che si immobilizza beve {sip2}.",
+      kind: "physical",
+    },
+    "5": {
+      title: "Domanda scomoda",
+      body: "Il gruppo sceglie una domanda audace ma rispettosa. Rispondi oppure bevi {sip2}; puoi sempre rifiutare senza spiegazioni.",
+      kind: "social",
+    },
+    "6": {
+      title: "Sei sorsi senza alleanze",
+      body: "Distribuisci {sip6} tra almeno tre persone. Nessuno può riceverne più di 2.",
+      kind: "drink",
+    },
+    "7": {
+      title: "Non ridere: livello estremo",
+      body: "Hai 15 secondi per far ridere {randomPlayer}, senza toccarlo. Chi perde beve {sip2}.",
+      kind: "social",
+    },
+    "8": {
+      title: "Otto sorsi divisi",
+      body: "Distribuisci {sip8} tra esattamente quattro persone. Se siete in meno, coinvolgi tutti gli altri.",
+      kind: "drink",
+    },
+    "9": {
+      title: "Tre manche, una condanna",
+      body: "Sfida {randomPlayer} a carta, forbice, sasso al meglio di tre. Chi perde beve {sip2}; chi vince distribuisce {sip3}.",
+      kind: "social",
+    },
+    "10": {
+      title: "Silenzio totale",
+      body: "Per 15 secondi nessuno può parlare o ridere mentre provi a distrarli. Il primo che cede beve {sip2}; se resistono tutti, bevi tu.",
+      kind: "social",
+    },
+    J: {
+      title: "Interrogatorio",
+      body: "Fino al prossimo Jack, chi risponde a una tua domanda beve {sip}. Una persona può dire «passo» e non rispondere.",
+      kind: "wild",
+    },
+    Q: {
+      title: "Scelta spietata della regina",
+      body: "Scegli due giocatori per un duello di sguardi. Chi perde beve {sip2}; poi distribuisci altri {sip3}.",
+      kind: "social",
+    },
+    K: {
+      title: "Re di picche estremo",
+      body: "Versa una piccola quantità nel bicchiere al centro. Al quarto Re, dividetelo e chiudete con un bicchiere d'acqua.",
       kind: "drink",
     },
   },
@@ -327,15 +870,34 @@ function buildDeck() {
   return deck;
 }
 
-function penalty(mode: DrinkMode, amount: 1 | 2) {
-  if (mode === "shots") return amount === 1 ? "mezzo shot" : "uno shot piccolo";
-  return amount === 1 ? "un sorso" : "due sorsi";
+function penalty(mode: DrinkMode, amount: number) {
+  if (mode === "shots") {
+    if (amount === 1) return "mezzo shot";
+    if (amount === 2) return "1 shot piccolo";
+    return `${Math.ceil(amount / 2)} shot piccoli`;
+  }
+  return amount === 1 ? "1 sorso" : `${amount} sorsi`;
+}
+
+function formatChallengeBody(
+  body: string,
+  mode: DrinkMode,
+  randomPlayer = "un giocatore",
+  number = 7,
+) {
+  return body
+    .replaceAll("{randomPlayer}", randomPlayer)
+    .replaceAll("{number}", String(number))
+    .replace(/\{sip(\d+)?\}/g, (_match, amount: string | undefined) =>
+      penalty(mode, Number(amount ?? "1")),
+    );
 }
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("landing");
   const [names, setNames] = useState(["", "", "", ""]);
   const [players, setPlayers] = useState<string[]>([]);
+  const [gameMode, setGameMode] = useState<GameMode>("classic");
   const [mode, setMode] = useState<DrinkMode>("sips");
   const [deck, setDeck] = useState<Card[]>([]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
@@ -408,16 +970,17 @@ export default function Home() {
   }
 
   function resolveChallenge(card: Card) {
-    const source = CHALLENGES[card.suit.key][card.rank];
+    const challengeDeck = {
+      classic: CLASSIC_CHALLENGES,
+      extreme: EXTREME_CHALLENGES,
+      pool: POOL_CHALLENGES,
+    }[gameMode];
+    const source = challengeDeck[card.suit.key][card.rank];
     const otherPlayers = players.filter((_, index) => index !== currentPlayer);
     const randomPlayer =
       otherPlayers[Math.floor(Math.random() * Math.max(otherPlayers.length, 1))] ?? currentName;
     const number = Math.floor(Math.random() * 10) + 1;
-    const body = source.body
-      .replaceAll("{randomPlayer}", randomPlayer)
-      .replaceAll("{number}", String(number))
-      .replaceAll("{sip2}", penalty(mode, 2))
-      .replaceAll("{sip}", penalty(mode, 1));
+    const body = formatChallengeBody(source.body, mode, randomPlayer, number);
     return { ...source, body };
   }
 
@@ -459,7 +1022,7 @@ export default function Home() {
   }
 
   return (
-    <main className="app-shell">
+    <main className={`app-shell ${gameMode === "pool" ? "pool-mode" : gameMode === "extreme" ? "extreme-mode" : ""}`}>
       <div className="ambient ambient-one" />
       <div className="ambient ambient-two" />
       <div className="noise" />
@@ -474,13 +1037,13 @@ export default function Home() {
           </nav>
 
           <div className="hero-copy">
-            <p className="eyebrow"><span /> Il drinking game per una sola mano</p>
+            <p className="eyebrow"><span /> Il gioco da bere per una sola mano</p>
             <h1>
               Circle
               <span>of Death</span>
             </h1>
             <p className="hero-lead">
-              52 carte. 52 sfide. Ogni seme cambia le regole.
+              Modalità classica, estrema o piscina. 52 carte e un mazzo diverso per ogni modalità.
               <strong> Un solo iPhone, tutto il gruppo dentro al cerchio.</strong>
             </p>
             <div className="hero-actions">
@@ -516,7 +1079,7 @@ export default function Home() {
 
           <footer className="landing-footer">
             <span>18+ · Bevi responsabilmente</span>
-            <span>Designed for the afterparty</span>
+            <span>Pensato per il dopocena</span>
           </footer>
         </section>
       )}
@@ -530,7 +1093,7 @@ export default function Home() {
           </header>
 
           <div className="content-wrap rules-wrap">
-            <p className="eyebrow"><span /> Il twist</p>
+            <p className="eyebrow"><span /> La differenza</p>
             <h2>Il numero non basta più.</h2>
             <p className="section-lead">
               Ogni combinazione di numero e seme attiva una sfida diversa. L&apos;8, per esempio, ha quattro vite.
@@ -554,12 +1117,12 @@ export default function Home() {
                 <div><small>ESEMPIO</small><h3>Quattro semi, quattro sfide</h3></div>
               </div>
               <div className="eight-list">
-                {SUITS.map((suit) => {
-                  const challenge = CHALLENGES[suit.key]["8"];
+              {SUITS.map((suit) => {
+                  const challenge = CLASSIC_CHALLENGES[suit.key]["8"];
                   return (
                     <div key={suit.key}>
                       <b className={suit.key === "hearts" || suit.key === "diamonds" ? "red" : ""}>{suit.symbol}</b>
-                      <span><strong>{challenge.title}</strong>{challenge.body.split(".")[0]}.</span>
+                      <span><strong>{challenge.title}</strong>{formatChallengeBody(challenge.body, "sips").split(".")[0]}.</span>
                     </div>
                   );
                 })}
@@ -568,7 +1131,7 @@ export default function Home() {
 
             <div className="how-to">
               <article><span>01</span><h3>Inserite i nomi</h3><p>Il telefono gestisce ordine e turni.</p></article>
-              <article><span>02</span><h3>Tocca il mazzo</h3><p>La carta rivela una sfida unica.</p></article>
+              <article><span>02</span><h3>Scegli la modalità</h3><p>Classica, Estrema oppure Piscina: ogni modalità ha 52 sfide.</p></article>
               <article><span>03</span><h3>Passa il telefono</h3><p>Il quarto Re chiude il cerchio.</p></article>
             </div>
 
@@ -618,13 +1181,40 @@ export default function Home() {
               ))}
             </div>
 
+            <fieldset className="mode-picker game-mode-picker">
+              <legend>Come volete giocare?</legend>
+              <button className={gameMode === "classic" ? "selected" : ""} onClick={() => setGameMode("classic")}>
+                <span>♛</span><b>Classica</b><small>sfide da tavolo, movimento e sorsi</small>
+              </button>
+              <button className={`extreme-option ${gameMode === "extreme" ? "selected" : ""}`} onClick={() => setGameMode("extreme")}>
+                <span>⚡</span><b>Estrema</b><small>più duelli, caos e sfide senza filtro</small>
+              </button>
+              <button className={`pool-option ${gameMode === "pool" ? "selected" : ""}`} onClick={() => setGameMode("pool")}>
+                <span>☀</span><b>Piscina</b><small>52 sfide estive, solo a bordo vasca</small>
+              </button>
+            </fieldset>
+
+            {gameMode === "extreme" && (
+              <aside className="extreme-warning">
+                <b>Più caos, non più alcol.</b>
+                <p>Le sfide sono più competitive e audaci, ma acqua, analcolico e “passo” restano sempre validi.</p>
+              </aside>
+            )}
+
+            {gameMode === "pool" && (
+              <aside className="pool-warning">
+                <b>La partita resta fuori dall&apos;acqua.</b>
+                <p>Giocate in una zona asciutta: niente tuffi, corse, apnea o bicchieri di vetro.</p>
+              </aside>
+            )}
+
             <fieldset className="mode-picker">
               <legend>Cosa avete sul tavolo?</legend>
               <button className={mode === "sips" ? "selected" : ""} onClick={() => setMode("sips")}>
                 <span>🍹</span><b>Drink</b><small>penalità = piccoli sorsi</small>
               </button>
               <button className={mode === "shots" ? "selected" : ""} onClick={() => setMode("shots")}>
-                <span>🥃</span><b>Shot mix</b><small>penalità = mezzi shot</small>
+                <span>🥃</span><b>Shot</b><small>1 penalità = mezzo shot</small>
               </button>
             </fieldset>
 
@@ -642,7 +1232,13 @@ export default function Home() {
             <i>♥</i><i>♦</i><i>♣</i><i>♠</i>
           </div>
           <p className="eyebrow"><span /> Mazzo in movimento</p>
-          <h2>Il cerchio<br />si chiude.</h2>
+          <h2>
+            {gameMode === "pool"
+              ? <>Il bordo vasca<br />è pronto.</>
+              : gameMode === "extreme"
+                ? <>Nessuna pietà.<br />Si comincia.</>
+                : <>Il cerchio<br />si chiude.</>}
+          </h2>
           <div className="shuffle-line"><span /></div>
           <p><strong>{players[0]}</strong> pesca per primo</p>
         </section>
@@ -694,11 +1290,20 @@ export default function Home() {
 
                 <article className="challenge-panel">
                   <div className="challenge-kicker">
-                    <span>{kindLabels[revealed.challenge.kind]}</span>
+                    <span>
+                      {gameMode === "pool" ? "Piscina · " : gameMode === "extreme" ? "Estrema · " : ""}
+                      {kindLabels[revealed.challenge.kind]}
+                    </span>
                     <i>{revealed.suit.symbol} {revealed.suit.name}</i>
                   </div>
                   <h2>{revealed.challenge.title}</h2>
                   <p>{revealed.challenge.body}</p>
+                  {gameMode === "pool" && (
+                    <small className="pool-reminder">Solo fuori dall&apos;acqua · niente tuffi o corse</small>
+                  )}
+                  {gameMode === "extreme" && (
+                    <small className="extreme-reminder">Intensa, non obbligatoria · acqua e “passo” sono sempre validi</small>
+                  )}
                   <button className="primary-button full-button" onClick={nextTurn}>
                     {revealed.isFinalKing ? "Chiudi il cerchio" : "Sfida accettata"} <b>→</b>
                   </button>
@@ -722,7 +1327,11 @@ export default function Home() {
           <div className="end-crown" aria-hidden="true">♛</div>
           <p className="eyebrow"><span /> Quarto Re</p>
           <h2>Il cerchio<br />è completo.</h2>
-          <p className="end-copy"><strong>{finalPlayer}</strong> ha pescato l&apos;ultimo Re. Dividete il calice, fate il vostro brindisi e chiudetela bene.</p>
+          <p className="end-copy">
+            <strong>{finalPlayer}</strong> ha pescato l&apos;ultimo Re. Dividete il calice, fate il vostro brindisi e chiudetela bene.
+            {gameMode === "pool" && " Restate fuori dalla vasca e fate anche un giro d'acqua."}
+            {gameMode === "extreme" && " Chiudete con un giro d'acqua per tutti."}
+          </p>
           <div className="end-toast">SALUTE <span>♥ ♦ ♣ ♠</span></div>
           <button className="primary-button" onClick={() => setScreen("setup")}>Nuova partita <b>↻</b></button>
           <button className="text-button" onClick={() => setScreen("landing")}>Torna all&apos;inizio</button>
